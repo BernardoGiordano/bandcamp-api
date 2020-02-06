@@ -7,18 +7,13 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class ConfigUtil 
 {
-	private static final Logger logger = LogManager.getLogger(ConfigUtil.class);
-	
 	public static APICall getConfigValue(String key) throws Exception
 	{
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLStreamReader parser = factory.createXMLStreamReader(ConfigUtil.class.getResourceAsStream("/config/config.xml"), "Cp1252");
-		logger.debug("Initialized XMLStreamReader");
 		APICall query = null;
 		while (parser.hasNext()) 
 		{
@@ -62,7 +57,6 @@ public class ConfigUtil
 	{
 		if(query != null && StringUtils.isNotBlank(query.getBaseURL()))
 		{
-			logger.debug("APICall Base URL: " + query.getBaseURL());
 			URIBuilder builder = new URIBuilder(query.getBaseURL());
 			if(parameters != null && !parameters.isEmpty() && query.HasParameters())
 			{
@@ -73,7 +67,6 @@ public class ConfigUtil
 				    {
 						String value = entry.getValue();
 						builder.addParameter(key, value);
-						logger.debug("Added Parameter: key=" + key + ", value=" + value);
 				    }
 				}
 			}

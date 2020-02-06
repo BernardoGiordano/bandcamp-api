@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -23,8 +21,6 @@ import com.google.gson.stream.JsonReader;
 
 public class JSONUtil 
 {
-	private static final Logger logger = LogManager.getLogger(JSONUtil.class);
-	
 	public static JsonObject parseBandData(String URL) throws Exception
 	{
 		Elements scriptTagList = HttpUtil.getScriptList(URL);
@@ -55,7 +51,6 @@ public class JSONUtil
 					{
 						try
 						{
-							
 							JsonReader reader = new JsonReader(new StringReader(bandData));
 							return new JsonParser().parse(reader).getAsJsonObject();
 						} 
@@ -187,13 +182,11 @@ public class JSONUtil
 			for(Element page : pageLinks)
 			{
 				String pageURL = "https://bandcamp.com/search" + page.attr("href");
-				logger.debug("New search result page: " + pageURL);
 				pageNumberURLList.add(pageURL);
 			}
 			if(!pageNumberURLList.isEmpty())
 			{
 				pageNumberURLList.add(0, pageNumberURLList.get(0).replace("search?page=2", "search?page=1"));
-				logger.debug("Added first page: " + pageNumberURLList.get(0));
 			}
 			return pageNumberURLList;
 		}

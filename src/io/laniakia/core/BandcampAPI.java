@@ -12,8 +12,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -31,7 +31,6 @@ import io.laniakia.util.JSONUtil;
 
 public class BandcampAPI 
 {
-	private static final Logger logger = LogManager.getLogger(BandcampAPI.class);
 	private int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 	
 	public BandcampAPI(int threadPoolSize)
@@ -53,7 +52,6 @@ public class BandcampAPI
 			{put("q",query);}}
 			);
 			//Praise cthulhu
-			logger.debug("Search URL: " + searchURL);
 			List<String> searchPageList = JSONUtil.getPageNumbers(searchURL);
 			if(searchPageList != null && !searchPageList.isEmpty())
 			{
@@ -89,7 +87,6 @@ public class BandcampAPI
 		Document searchPage = HttpUtil.getDocument(pageLink);
 		Elements bandLinks = searchPage.select("div[class*=itemurl]");
 		bandLinks = JSONUtil.getBandTypes(bandLinks, FilterType.ARTIST);
-		logger.debug("Band links to process: " + bandLinks.size());
 		if(bandLinks != null && !bandLinks.isEmpty())
 		{
 			List<Band> bandList;
@@ -106,7 +103,6 @@ public class BandcampAPI
 					Band band = processBand(bandURL);
 					if(band != null)
 					{
-						logger.debug("Processing band on single thread: " + bandURL);
 						bandList.add(band);
 					}
 				}
@@ -119,8 +115,6 @@ public class BandcampAPI
 	private List<Band> processBandAsynchronous(Elements bandLinks) throws Exception
 	{
 		List<Band> bandList = new ArrayList<Band>();
-		logger.debug("Available CPU Processors: " + Runtime.getRuntime().availableProcessors());
-		logger.debug("Processing bands asynchronously wih threadpool size of: " + THREAD_POOL_SIZE);
 		ExecutorService service = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 		List<Future<Band>> futures = new ArrayList<Future<Band>>();
 		for(final Element divURL : bandLinks)
@@ -130,7 +124,6 @@ public class BandcampAPI
 	            public Band call() throws Exception
 	            {
 	            	String bandURL = divURL.select("a").first().text();
-	            	logger.debug("Processing band asynchronously with URL: " + bandURL);
 	            	Band band =  processBand(bandURL);
 					return band;
 	            }
@@ -172,7 +165,6 @@ public class BandcampAPI
 				Set<String> trackLinkList = getTrackLinkList(albumListURL, bandURL);
 				if(albumLinkList != null && !albumLinkList.isEmpty())
 				{
-					logger.debug("Processing Albums: " + albumLinkList.size());
 					for(String albumLink : albumLinkList)
 					{
 						Album album = null;
@@ -188,12 +180,9 @@ public class BandcampAPI
 				if(trackLinkList != null && !trackLinkList.isEmpty())
 				{
 					Album album = null;
-					logger.debug("Processing single tracks without albums: " + trackLinkList.size());
 					for(String trackLink : albumLinkList)
 					{
 						Map<String, Object> trackMetadata = JSONUtil.parseAlbumData(trackLink);
-						logger.debug("Track Metadata JSON: " + trackMetadata.get("albumMetadata"));
-						logger.debug("Track JSON: " + trackMetadata.get("trackMetadata"));
 						album = processaAlbumTrackMetadata(trackMetadata);
 						album.setIsTrack(true);
 						if(album != null)
@@ -223,20 +212,12 @@ public class BandcampAPI
 	private Album processaAlbumTrackMetadata(Map<String, Object> albumTrackMetadata)
 	{
 		Album album = null;
-		logger.debug("Album JSON: " + albumTrackMetadata.get("albumMetadata"));
-		logger.debug("Album Track JSON: " + albumTrackMetadata.get("trackMetadata"));
 		if(albumTrackMetadata.get("albumMetadata") != null)
 		{
-			logger.debug("Seralizing Album JSON...");
 			album = new Gson().fromJson(albumTrackMetadata.get("albumMetadata").toString(), Album.class);
-			if(album != null)
-			{
-				logger.debug("Album serialized: " + album.toString());
-			}
 		}
 		if(albumTrackMetadata.get("trackMetadata") != null)
 		{
-			logger.debug("Seralizing track JSON...");
 			if(albumTrackMetadata.get("trackMetadata") instanceof List)
 			{
 				List<JsonObject> trackJSONList = (List<JsonObject>) albumTrackMetadata.get("trackMetadata");
@@ -245,7 +226,6 @@ public class BandcampAPI
 					Track track = new Gson().fromJson(trackJSON.toString(), Track.class);
 					if(track != null)
 					{
-						logger.debug("Processing Track: " + track.toString());
 						if(album != null)
 						{
 							album.addTrack(track);
