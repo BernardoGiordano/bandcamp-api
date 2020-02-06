@@ -12,8 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -51,7 +49,6 @@ public class BandcampAPI
 				private static final long serialVersionUID = 1L;
 			{put("q",query);}}
 			);
-			//Praise cthulhu
 			List<String> searchPageList = JSONUtil.getPageNumbers(searchURL);
 			if(searchPageList != null && !searchPageList.isEmpty())
 			{
